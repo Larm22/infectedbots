@@ -1,353 +1,254 @@
-//此插件0.1秒後設置Tank與特感血量
-/********************************************************************************************
-* Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 3.0.2 (2009-2025)
-* Game		: Left 4 Dead 1 & 2
-* Author	: djromero (SkyDavid, David), MI 5, Harry Potter
-* Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
-*
-* Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
-* WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
-* REQUIRE	: left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
-*
-* Version 3.0.2 (2025-1-29)
-*	   - If root admin use !zlimit or !timer to change zombies limit/spawn timer, keep the change until next map or data is reloaded
-*	   - Remove common limit
-*
-* Version 3.0.1 (2025-1-18)
-*	   - Support SIPool: https://forums.alliedmods.net/showthread.php?t=346270
-*
-* Version 3.0.0 (2024-11-08)
-*	   - Fixed SI bots still spawn when tank is on the field in l4d1
-*
-* Version 2.9.9 (2024-11-08)
-*	   - Fixed ghost tank bug in non-versus mode if real player in infected team
-*	   - Fixed double tank bug in non-versus mode if real player in infected team
-*
-* Version 2.9.8 (2024-9-14)
-*	   - Fixed real SI player can't see the ladder in coop/realism
-*
-* Version 2.9.7 (2024-8-8)
-*	   - Fixed Special Infected Health
-*
-* Version 2.9.6 (2024-5-1)
-*	   - Fixed Enable/Disable cvar
-*
-* Version 2.9.5 (2024-4-13)
-*	   - Fixed Crash when real player playing infected team in coop/realism/survival
-*
-* Version 2.9.4 (2024-3-25)
-*	   - Update Data Config
-*	   - Add smoker, boomer, hunter, spitter, jockey, charger health in data
-*
-* Version 2.9.3 (2024-2-23)
-*	   - You can choose to load different data config instead of xxxx.cfg (xxxx = gamemode or mutation name) in data\l4dinfectedbots folder
-*	   - Update Data Config
-*	   - Update Translation
-*	   - Update Cvars
-*
-* Version 2.9.2 (2024-2-18)
-*	   - Update Translation
-*	   - Update Commands
-*
-* Version 2.9.1 (2024-2-14)
-*	   - Prevent players from joining infected team and occupy slots forever in coop/survival/realism
-*	   - Update Data
-*	   - Update Translation
-*
-* Version 2.9.0 (2024-2-9)
-*	   - Change another method to spawn human infected in coop/realism/survival instead of FakeClientCommand
-*	   - Add Data config to control spawn timers, spawn limit, tank limit, witch limit, common infected limit.....
-*	   - Update Cvars
-*	   - Update Commands
-*
-* Version 2.8.9 (2024-1-27)
-*	   - Updated L4D1 Gamedata 
-*
-* Version 2.8.8 (2023-12-2)
-*	   - Infected limit + numbers of survivor + spectators can not exceed 32 slots, otherwise server fails to spawn infected and becomes super lag
-*
-* Version 2.8.7 (2023-10-9)
-*	   - Fixed the code to avoid calling L4D_SetPlayerSpawnTim native from L4D1. (This Native is only supported in L4D2.)
-*
-* Version 2.8.6 (2023-9-22)
-*	   - Fixed "l4d_infectedbots_coordination" not working
-*	   - Fixed Bot Spawn timer
-*
-* Version 2.8.5 (2023-9-17)
-*	   - Adjust human spawn timer when 5+ infected slots in versus/scavenge
-*	   - In Versus/Scavenge, human infected spawn timer controlled by the official cvars "z_ghost_delay_min" and "z_ghost_delay_max" 
-*
-* Version 2.8.4 (2023-8-26)
-*	   - Improve Code
-*
-* Version 2.8.3 (2023-7-5)
-*	   - Override L4D2 Vscripts to control infected limit.
-*
-* Version 2.8.2 (2023-5-27)
-*	   - Add a convar, including dead survivors or not
-*	   - Add a convar, disable infected bots spawning or not in versus/scavenge mode
-*
-* Version 2.8.1 (2023-5-22)
-*	   - Use function L4D_HasPlayerControlledZombies() from left4dhooks to detect if player can join infected in current mode.
-*
-* Version 2.8.0 (2023-5-5)
-*	   - Add Special Infected Weight
-*	   - Add and modify convars about Special Infected Weight
-*
-* Version 2.7.9 (2023-4-13)
-*	   - Fixed Not Working in Survival Mode
-*	   - Fixed cvar "l4d_infectedbots_adjust_spawn_times" calculation mistake
-*
-* Version 2.7.8
-*	   - Fixed abnormal Tank Bug. Player gets a special infected with tank skin and abilitiesm, but can not attack or throw rock. This bug only happenes in l4d1.
-*	   - Fixed Music Bugs when switching to infected team in coop/realism/survival.
-*	   - Disable spawn if official cvar "director_no_specials" is 1
-*
-* Version 2.7.7
-*	   - Add convar: "l4d_infectedbots_spawn_where_method", "0", "Where to spawn infected? 0=Near the first ahead survivor. 1=Near the random survivor"
-*
-* Version 2.7.6
-*	   - Add convar: "l4d_infectedbots_spawn_on_same_frame", "0", "If 1, infected bots can spawn on the same game frame (careful, this could cause sever laggy)"
-*
-* Version 2.7.5
-*	   - Spawn special infected near the survivor who is ahead of team
-*	   - When game couldn't find a valid spawn position, continue to spawn other speical infected left
-*	   - Delete convar "l4d_infectedbots_spawn_range_max", "l4d_infectedbots_spawn_range_final"
-*
-* Version 2.7.4
-*	   - Fixed wrong spawn timer after survivor wipe out 
-*	   - Fixed Game does not spawn infected if numbers of human infected player equal to max_specials limit
-*	   - Fixed Multi Spawn bug, infected bot spawn too fast.
-*	   - Optimize spawn timer codes
-*
-* Version 2.7.3
-*	   - Fixed spawn error in l4d1.
-*	   - Give ghost infected player flashLight in coop/realism/survival.
-*	   - Fixed tank disappears when being controlled by human player in coop/survival/realism.
-*
-* Version 2.7.2
-*	   - Add more final starts event.
-*
-* Version 2.7.1
-*	   - Add ConVars: l4d_infectedbots_tank_spawn_final, l4d_infectedbots_add_tanklimit_scale, l4d_infectedbots_add_tanklimit
-*
-* Version 2.7.0
-*	   - Fixed infinite suicide after human tank player dead becuase lose control in coop/survival/realism.
-*	   - Fixed wrong infected limit if there are human infected player in coop/survival/realism.
-*
-* Version 2.6.9
-*	   - Add convar "l4d_infectedbots_coop_versus_human_ghost_enable", human infected player will spawn as ghost state in coop/survival/realism.
-*	   - Remove convar "l4d_infectedbots_admin_coop_versus"
-*	   - Add convar "l4d_infectedbots_coop_versus_join_access", Players with these flags have access to join infected team in coop/survival/realism.
-*
-* Version 2.6.8
-*	   - Optimize Infected Spawn Code
-*
-* Version 2.6.7
-*	   - Fixed Spawn Infected Timer error when map transition
-*	   - Remove ConVar "l4d_infectedbots_ghost_time", this caused some error model issue in versus
-*
-* Version 2.6.6
-*	   - Changing ConVar in-game takes effect immediately
-*	   - Fixed convar 'l4d_infectedbots_coordination' not working
-*	   - Fixed convar 'l4d_infectedbots_modes_tog' not working
-*
-* Version 2.6.5
-*	   - Display Tank Health based on gamemode and difficulty (For example, Set Tank health 4000hp, but in Easy: 3000, Normal: 4000, Versus: 6000, Advanced/Expert: 8000)
-*
-* Version 2.6.4
-*	   - Fixed Hunter Tank Bug in l4d1 coop mode when tank is playable.
-*	   - Fixed Infected Bot disappear when Infected Bot capped a survivor sometimes
-*	   - Remove Camera stuck Fix (if you want to fix, install this plugin by Forgetest: https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
-*	   - Remove z_scrimmage_sphere convar to fix some issues, for example: final stage stuck or client game crashes
-*
-* Version 2.6.3
-*	   - Fixed players' camera stuck when finale vehicle leaving.
-*	   - Detect l4d1 convar "versus_tank_bonus_health". In l4d1 versus mode, tank hp = z_tank_health * versus_tank_bonus_health.
-*	   - Fixed tank spawn probability is not following convar "l4d_infectedbots_tank_spawn_probability"
-*
-* Version 2.6.2
-*	   - Add convars to turn off this plugin.
-*
-* Version 2.6.1
-*	   - Only remove witches that are spawned by this plugin, make sure this plugin won't affect director witch or any other plugin that could spawn witch.
-*	   - Compatibility support for SourceMod 1.11. Fixed various warnings.
-*
-* Version 2.6.0
-*	   - Remove point_viewcontrol and point_deathfall_camera entities on the map to fix an official bug that has existed for more than ten years.
-*		 (In coop/realism mode, the infected/spectator players' screen would be stuck and frozen when they are watching survivor deathfall or final rescue mission failed)
-*
-* Version 2.5.9
-*	   - Fixed incorrect infected player limit when the real tank player is in game on coop mode. (thanks ZBzibing for reporting: https://forums.alliedmods.net/showpost.php?p=2764042&postcount=1555)
-*
-* Version 2.5.8
-*	   - Fixed OnPluginStart() error "Exception reported: L4D_HasAnySurvivorLeftSafeArea Native is not bound"
-*
-* Version 2.5.7
-*	   - Update L4D1 Gamedata, Thanks BlackSabbarh for reporting
-*	   - Add function "bool CanBeSeenBySurvivors(int client)" instead of Netprops "m_hasVisibleThreats", use for kicking coward AI Infected.
-*
-* Version 2.5.6
-*	   - Fixed final maps wouldn't start final rescue in versus.
-*	   - Modify spawn range for infected only in coop/realism.
-*
-* Version 2.5.5
-*	   - New ConVar "l4d_infectedbots_announcement_enable", "If 1, announce current plugin status when the number of alive survivors changes."
-*	   - Don't override "z_common_limit" when "l4d_infectedbots_adjust_commonlimit_enable" is 0.
-*
-* Version 2.5.4
-*	   - Signature update for L4D2's "2.2.1.3" update
-*		 (credit to Lux: https://forums.alliedmods.net/showthread.php?p=2714236)
-*
-* Version 2.5.3
-*	   - In coop, fixed the bug when l4d_infectedbots_infhud_enable set to 0, the human controlled Tank won't get killed when he out of rage meter.
-*	   - In coop, fixed the bug when l4d_infectedbots_coop_versus_tank_playable set to 1, if a tank spwans when there are 2 or more human play on the infected side, all the human player will become tank.
+// L4D/L4D2 InfectedBots (Versus-like Spawn System)
+#pragma semicolon 1
+#pragma newdecls required
 
-* Version 2.5.2
-*	   - fixed invalid convar handle in l4d1
+#include <sourcemod>
+#include <sdktools>
+#include <left4dhooks>
 
-* Version 2.5.1
-*	   - fixed l4d1 ghost tank bug in coop/survival
-*
-* Version 2.5.0
-*	   - fixed l4d1 doesn't have "z_finale_spawn_mob_safety_range" convar  (thanks darkbret for reporting: https://forums.alliedmods.net/showpost.php?p=2731173&postcount=1510)
-*
-* Version 2.4.9
-*	   - fixed l4d1 faild to load, (thanks Dragokas for reporting: https://forums.alliedmods.net/showpost.php?p=2729460&postcount=1508)
-*
-* Version 2.4.8
-*	   - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
-*		(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849)
-*		(Thanks to ProdigySim: https://github.com/ProdigySim/DirectInfectedSpawn)
-*
-* Version 2.4.7
-*	   - Signature fix for 12/8/2020 update.
-*		(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849)
-*		(Stupid IDIOT TLS team, pushing unuseful updates no one really cares or asks for. Come on! Value)
-*
-* Version 2.4.6
-*	   - Signature fix for 12/2/2020 update.
-*		(Credit to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849)
-*		(TLS team, please stop unuseless update)
-*
-* Version 2.4.5
-*	   - survivor glow color issue in coop/survival mode.
-*	   - add "FlashlightIsOn" signature in l4d2, add "FlashlightIsOn" offset in l4d1.
-		(Credit to Machine: https://forums.alliedmods.net/member.php?u=74752)
-*	   - Light up SI ladders in coop/realism/survival. mode for human infected players. (l4d2 only)
+#define PLUGIN_VERSION "1.0"
+#define DEBUG 0
 
-* Version 2.4.4
-*	   - fixed plugin not working if player disconnects when map change.
-*
-* Version 2.4.3
-*	   - Add The last stand new convar "z_finale_spawn_mob_safety_range".
-*
-* Version 2.4.2
-*	   - fixed infected bot got kicked issue sometimes.
-*
-* Version 2.4.1
-*	   - Update gamedata, credit to Lux: https://forums.alliedmods.net/showthread.php?p=2714236
-*
-* Version 2.4.0
-*	   - Fixed no common infected issue sometimes.
-*
-* Version 2.3.9
-*	   - Update Gamedata for L4D2 "The Last Stand" update.
-*		(Thanks to Shadowysn's work, [L4D1/2] Direct Infected Spawn (Limit-Bypass), https://forums.alliedmods.net/showthread.php?t=320849)
-*	   - Remove infected hud when you are spectator.
-*
-* Version 2.3.8
-*	   - Fixed Native "L4D2_SpawnWitchBride" was not found in l4d1.
-*	   - Fixed L4D2 ConVars Invalid convar handle in l4d1.
-*	   - Fixed L4D2 ConVars signature not found in l4d1.
-*
-* Version 2.3.7
-*	   - Fixed Wrong Zombie Class.
-*	   - prevent memory leak handle and timer.
-*	   - spawn Witch bride in the passing map 1 (spawning normal witch in this map will crash server).
-*	   - Disable survivor glow when no infected players. Enable survivor glow when there are infected players in coop/realism/survival. mode
-*	   - Fixed no common spawning issue when "l4d_infectedbots_adjust_commonlimit_enable" is 0
-*
-* Version 2.3.6
-*	   - require left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
-*	   - update gamedata, credit to Shadowysn's work (https://forums.alliedmods.net/showthread.php?t=320849)
-*	   - improve SI spawing code.
-*	   - support sourcemod's latest 1.10 or above, time to upgrade and get a dedicated server
-*
-* Version 2.3.5
-*	   - light up SI ladders in coop/realism/survival. mode for human infected players. (didn't work if you host a listen server)
-*	   - remove convar "music_manager" setting.
-*	   - add survivor glow in coop/realism/survival. mode for human infected players.
-*
-* Version 2.3.4
-*	   - fixed special limit keep adding issue when map change.
-*	   - fixed Invalid timer handle.
-*
-* Version 2.3.3
-*	   - fixed Invalid timer handle.
-*	   - fixed colddown timer issue.
-*	   - fixed wrong special limit if numbers of alive survivors are less then 4
-*	   - fixed l4d1 doesn't have "z_finale_spawn_tank_safety_range" convar
-*	   - update translation
-*
-* Version 2.3.2
-*	   - control zombie common limit.
-*	   - Add Convar "l4d_infectedbots_adjust_commonlimit_enable"
-*	   - Add Convar "l4d_infectedbots_default_commonlimit"
-*	   - Add Convar "l4d_infectedbots_add_commonlimit_scale"
-*	   - Add Convar "l4d_infectedbots_add_commonlimit"
-*	   - update translation.
-*	   - fixed "l4d_infectedbots_coordination" and "l4d_infectedbots_spawns_disabled_tank" convar.
-*	   - fixed no bot spawning when infected bot got kicked.
-*	   - Deleted "l4d_infectedbots_director_spawn" Convar
-*	   - fixed music glitch, set convar "music_manager" to 0 when playing infected team in coop/survival/realism, this would turn off l4d music system.
-*
-* Version 2.3.1
-*	   - added reward sound in coop/survival/realism for real infected player.
-*	   - prevet real infected player from fall damage in coop/survival/realism.
-*
-* Version 2.3.0
-*	   - fixed client console error "Material effects/spawn_sphere has bad reference count 0 when being bound" spam when playing infected in non-versus mode.
-*	   - special max limit now counts tank in all gamemode.
-*	   - added PlayerLeftStartTimer.
-*	   - fixed no infected bots issue when reload/load this plugin during the game.
-*	   - added new event "round_end", "map_transition", "mission_lost", "finale_vehicle_leaving" as round end.
-*	   - fixed special max limit not correct when map change or reload/load this plugin during the game .
-*	   - check infected team max slots limit for players when player changes team to infected team in coop/realism/survival.
-*	   - deleted TankFrustStop.
-*	   - added player ghost check when tank player frustrated.
-*	   - fixed Ghost GhostTankBugFix in coop/realism.
-*	   - updated gamedata, add signature "NextBotCreatePlayerBot<Tank>"
-*
-* Version 2.2.7
-*	   - fixed bug that wrong respawn timer when playing infected in coop/realism/survival mode.
-*
-* Version 2.2.6
-*	   - adjust special limit and tank health depends on 4+ ALIVE survivor players"
-*	   - port l4d1
-*	   - 10 seconds can not suicide after infected player spawn
-*
-* Version 2.2.5
-*	   - Add Convar "l4d_infectedbots_sm_zs_disable_gamemode".
-*	   - Fixed "l4d_infectedbots_coordination" not working with tank.
-*
-* Version 2.2.4
-*	   - Add Translation.
-*	   - Fixed "l4d_infectedbots_coordination" not working.
-*	   - Improve new syntax code.
-*	   - Add Translation.
-*
-* Version 2.2.3
-*	   - Add Convar "l4d_infectedbots_adjust_tankhealth_enable"
-*
-* Version 2.2.2
-*	   - Fixed l4d_infectedbots_safe_spawn error
-*	   - Add Convar "l4d_infectedbots_tank_spawn_probability"
-*	   - Fixed Spawn Witch error
-*
-* Version 2.2.1
-*	   - Infected Player can't suicide if he got survivor
+public Plugin myinfo = {
+    name = "L4D Infected Bots - Spawn System",
+    author = "Original: SkyDavid, Modified by: Cursor",
+    description = "Spawns infected bots with versus-like timing",
+    version = PLUGIN_VERSION,
+    url = "https://github.com/cursorzz/l4d2-infected-spawn"
+};
+
+// Core functionality enums and constants
+#define TEAM_SURVIVOR 2
+#define TEAM_INFECTED 3
+#define ZOMBIESPAWN_Attempts 100
+
+enum {
+    SI_SMOKER = 0,
+    SI_BOOMER,
+    SI_HUNTER,
+    SI_SPITTER,
+    SI_JOCKEY,
+    SI_CHARGER,
+    SI_TANK,
+    SI_TOTAL
+}
+
+// Plugin variables
+bool g_bL4D2Version;
+bool g_bLeftSaveRoom;
+bool g_bInitialSpawn;
+bool g_bHasRoundEnded;
+bool g_bIsCoordination;
+
+int g_iSpawnCounts[SI_TOTAL];
+int InfectedBotQueue;
+Handle SpawnInfectedBotTimer[MAXPLAYERS+1];
+Handle InitialSpawnResetTimer;
+
+// Plugin settings struct
+enum struct SpawnSettings {
+    int m_iMaxSpecials;
+    float m_fInitialSpawnTime;
+    bool m_bSpawnSameFrame;
+    bool m_bCoordination;
+    int m_iSpawnLimit[SI_TOTAL];
+}
+SpawnSettings g_SpawnSettings;
+
+public void OnPluginStart() {
+    // Detect game version
+    g_bL4D2Version = (GetEngineVersion() == Engine_Left4Dead2);
+    
+    // Initialize default settings
+    g_SpawnSettings.m_iMaxSpecials = 4;
+    g_SpawnSettings.m_fInitialSpawnTime = 10.0;
+    g_SpawnSettings.m_bSpawnSameFrame = true;
+    g_SpawnSettings.m_bCoordination = true;
+    
+    for (int i = 0; i < SI_TOTAL; i++) {
+        g_SpawnSettings.m_iSpawnLimit[i] = 2;
+    }
+
+    // Hook events
+    HookEvent("round_start", Event_RoundStart);
+    HookEvent("round_end", Event_RoundEnd);
+    HookEvent("player_left_start_area", Event_PlayerLeftStartArea);
+}
+
+public void OnMapStart() {
+    g_bLeftSaveRoom = false;
+    g_bInitialSpawn = true;
+    g_bHasRoundEnded = false;
+    g_bIsCoordination = false;
+    InfectedBotQueue = 0;
+    
+    for (int i = 0; i <= MAXPLAYERS; i++) {
+        delete SpawnInfectedBotTimer[i];
+    }
+}
+
+public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast) {
+    g_bLeftSaveRoom = false;
+    g_bInitialSpawn = true;
+    g_bHasRoundEnded = false;
+    g_bIsCoordination = false;
+    InfectedBotQueue = 0;
+    
+    return Plugin_Continue;
+}
+
+public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) {
+    g_bHasRoundEnded = true;
+    return Plugin_Continue;
+}
+
+public Action Event_PlayerLeftStartArea(Event event, const char[] name, bool dontBroadcast) {
+    if (!g_bLeftSaveRoom) {
+        g_bLeftSaveRoom = true;
+        CreateTimer(0.1, Timer_InitialSpawn);
+    }
+    return Plugin_Continue;
+}
+
+public Action Timer_InitialSpawn(Handle timer) {
+    if (g_bHasRoundEnded) return Plugin_Continue;
+    
+    if (g_SpawnSettings.m_bSpawnSameFrame) {
+        for (int i = 1; i <= g_SpawnSettings.m_iMaxSpecials; i++) {
+            InfectedBotQueue++;
+            delete SpawnInfectedBotTimer[i];
+            SpawnInfectedBotTimer[i] = CreateTimer(g_SpawnSettings.m_fInitialSpawnTime, Timer_SpawnInfectedBot, i);
+        }
+    } else {
+        InfectedBotQueue++;
+        delete SpawnInfectedBotTimer[0];
+        SpawnInfectedBotTimer[0] = CreateTimer(g_SpawnSettings.m_fInitialSpawnTime, Timer_SpawnInfectedBot, 0);
+    }
+    
+    InitialSpawnResetTimer = CreateTimer(g_SpawnSettings.m_fInitialSpawnTime + 5.0, Timer_InitialSpawnReset);
+    return Plugin_Continue;
+}
+
+public Action Timer_InitialSpawnReset(Handle timer) {
+    g_bInitialSpawn = false;
+    InitialSpawnResetTimer = null;
+    return Plugin_Continue;
+}
+
+public Action Timer_SpawnInfectedBot(Handle timer, int index) {
+    if (g_bHasRoundEnded || !g_bLeftSaveRoom) {
+        if (InfectedBotQueue > 0) InfectedBotQueue--;
+        SpawnInfectedBotTimer[index] = null;
+        return Plugin_Continue;
+    }
+
+    // Coordination check
+    if (g_SpawnSettings.m_bCoordination && !g_bInitialSpawn && !g_bIsCoordination) {
+        for (int i = 1; i <= MaxClients; i++) {
+            if (i != index && SpawnInfectedBotTimer[i] != null) {
+                if (InfectedBotQueue > 0) InfectedBotQueue--;
+                SpawnInfectedBotTimer[index] = null;
+                return Plugin_Continue;
+            }
+        }
+        g_bIsCoordination = true;
+    }
+
+    // Get spawn position
+    int anyclient = GetRandomAliveSurvivor();
+    if (anyclient == 0) {
+        if (InfectedBotQueue > 0) InfectedBotQueue--;
+        SpawnInfectedBotTimer[index] = null;
+        return Plugin_Continue;
+    }
+
+    // Spawn the infected
+    float vecPos[3];
+    int zombieClass = GetRandomInfectedClass();
+    
+    if (L4D_GetRandomPZSpawnPosition(anyclient, zombieClass, ZOMBIESPAWN_Attempts, vecPos)) {
+        int bot = CreateInfectedBot(zombieClass);
+        if (bot > 0) {
+            TeleportEntity(bot, vecPos, NULL_VECTOR, NULL_VECTOR);
+        }
+    }
+
+    if (InfectedBotQueue > 0) InfectedBotQueue--;
+    SpawnInfectedBotTimer[index] = null;
+    
+    if (g_bIsCoordination) {
+        g_bIsCoordination = false;
+    }
+
+    return Plugin_Continue;
+}
+
+int GetRandomInfectedClass() {
+    int totalWeight = 0;
+    int weights[SI_TOTAL];
+    
+    for (int i = 0; i < SI_TOTAL-1; i++) {
+        if (g_iSpawnCounts[i] < g_SpawnSettings.m_iSpawnLimit[i]) {
+            weights[i] = 100;
+            totalWeight += 100;
+        }
+    }
+    
+    if (totalWeight == 0) return 1; // Default to Boomer if no valid class
+    
+    int random = GetRandomInt(1, totalWeight);
+    int accumulator = 0;
+    
+    for (int i = 0; i < SI_TOTAL-1; i++) {
+        accumulator += weights[i];
+        if (random <= accumulator) return i+1;
+    }
+    
+    return 1; // Fallback to Boomer
+}
+
+int GetRandomAliveSurvivor() {
+    int[] survivors = new int[MaxClients];
+    int count = 0;
+    
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR && IsPlayerAlive(i)) {
+            survivors[count++] = i;
+        }
+    }
+    
+    return (count == 0) ? 0 : survivors[GetRandomInt(0, count-1)];
+}
+
+int CreateInfectedBot(int zombieClass) {
+    int bot = -1;
+    
+    switch (zombieClass) {
+        case 1: bot = L4D_CreateInfected("Smoker");
+        case 2: bot = L4D_CreateInfected("Boomer");
+        case 3: bot = L4D_CreateInfected("Hunter");
+        case 4: bot = g_bL4D2Version ? L4D_CreateInfected("Spitter") : -1;
+        case 5: bot = g_bL4D2Version ? L4D_CreateInfected("Jockey") : -1;
+        case 6: bot = g_bL4D2Version ? L4D_CreateInfected("Charger") : -1;
+    }
+    
+    if (bot > 0) {
+        ChangeClientTeam(bot, TEAM_INFECTED);
+    }
+    
+    return bot;
+}
+
+// Helper function to create infected bot
+stock int L4D_CreateInfected(const char[] classname) {
+    int bot = CreateFakeClient("Infected Bot");
+    if (bot > 0) {
+        DispatchKeyValue(bot, "classname", classname);
+        DispatchSpawn(bot);
+        return bot;
+    }
+    return -1;
+}
 *	   - Kill Tank if tank player frustrated in coop/survival
 *	   - Player will be killed if enter ghost state in coop/survival
 *	   - Removed Convar "l4d_infectedbots_ghost_spawn"
@@ -537,7 +438,7 @@
 * 	   - Prevented additional music from playing when spawning as an infected
 * 	   - Redid the free spawning system, more robust and effective
 * 	   - Fixed bug where human tanks would break z_max_player_zombies (Now prevents players from joining a full infected team in versus when a tank spawns)
-* 	   - Redid the VersusDoorUnlocker, now activates without restrictions
+* 	   - Redid the VersusDoorUnlocker, now it simply unlocks the door
 * 	   - Fixed bug where tanks would keep spawning over and over
 * 	   - Fixed bug where the HUD would display the tank on fire even though it's not
 * 	   - Increased default spawn time to 30 seconds
@@ -567,7 +468,7 @@
 * 	   - Modified Spawn restriction system
 * 	   - Fixed bug where changing class limits on the spot would not take effect immediately
 * 	   - Removed infected bot ghosts in versus, caused too many bugs
-* 	   - Director spawn can now be changed in-game without a restart
+* 	   - Director spawning can now be changed in-game without a restart
 * 	   - The Gamemode being changed no longer needs a restart
 * 	   - Fixed bug where if admincheats is installed and an admin picked to spawn infected did not have root, would not spawn the infected
 * 	   - Fixed bug where players could not spawn as ghosts in versus if the gamemode was set in a server.cfg instead of the l4d dedicated server tool (which still has adverse effects, plugin or not)
@@ -5113,654 +5014,7 @@ void ResetTimer()
 	}
 }
 
-// prevent infecetd fall damage on coop
-Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damageType)
-{
-	if(g_bCvarAllow == false || L4D_HasPlayerControlledZombies() || victim <= 0 || victim > MaxClients || !IsClientInGame(victim) || IsFakeClient(victim)) return Plugin_Continue;
-	if(attacker <= 0 || attacker > MaxClients || !IsClientInGame(attacker) ) return Plugin_Continue;
-
-	if(attacker == victim && GetClientTeam(attacker) == TEAM_INFECTED && !IsPlayerTank(attacker))
-	{
-		return Plugin_Handled;
-	}
-	return Plugin_Continue;
-}
-
-Action tmrDelayCreateSurvivorGlow(Handle timer, any client)
-{
-	CreateSurvivorModelGlow(GetClientOfUserId(client));
-
-	return Plugin_Continue;
-}
-
-void CreateSurvivorModelGlow(int client)
-{
-	if (!g_bL4D2Version ||
-	!client ||
-	!IsClientInGame(client) ||
-	GetClientTeam(client) != TEAM_SURVIVOR ||
-	!IsPlayerAlive(client) ||
-	IsValidEntRef(g_iModelIndex[client]) == true ||
-	L4D_HasPlayerControlledZombies() ||
-	g_ePluginSettings.m_bCoopVersusEnable == false ||
-	bDisableSurvivorModelGlow == true ||
-	g_bMapStarted == false) return;
-
-	RemoveSurvivorModelGlow(client);
-
-	///////設定發光物件//////////
-	// Get Client Model
-	char sModelName[64];
-	GetEntPropString(client, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
-
-	// Spawn dynamic prop entity
-	int entity = CreateEntityByName("prop_dynamic_ornament");
-	if (CheckIfEntitySafe( entity ) == false) return;
-
-	// Set new fake model
-	SetEntityModel(entity, sModelName);
-	DispatchSpawn(entity);
-
-	// Set outline glow color
-	SetEntProp(entity, Prop_Send, "m_CollisionGroup", 0);
-	SetEntProp(entity, Prop_Send, "m_nSolidType", 0);
-	SetEntProp(entity, Prop_Send, "m_nGlowRange", 4500);
-	SetEntProp(entity, Prop_Send, "m_iGlowType", 3);
-	if(IsplayerIncap(client)) SetEntProp(entity, Prop_Send, "m_glowColorOverride", 180 + (0 * 256) + (0 * 65536)); //RGB
-	else SetEntProp(entity, Prop_Send, "m_glowColorOverride", 0 + (180 * 256) + (0 * 65536)); //RGB
-	AcceptEntityInput(entity, "StartGlowing");
-
-	// Set model invisible
-	SetEntityRenderMode(entity, RENDER_TRANSCOLOR);
-	SetEntityRenderColor(entity, 0, 0, 0, 0);
-
-	// Set model attach to client, and always synchronize
-	SetVariantString("!activator");
-	AcceptEntityInput(entity, "SetParent", client);
-	SetVariantString("!activator");
-	AcceptEntityInput(entity, "SetAttached", client);
-	///////發光物件完成//////////
-
-	g_iModelIndex[client] = EntIndexToEntRef(entity);
-
-	//model 只能給誰看?
-	SDKHook(entity, SDKHook_SetTransmit, Hook_SetTransmit);
-}
-
-Action Hook_SetTransmit(int entity, int client)
-{
-	if( GetClientTeam(client) != TEAM_INFECTED)
-		return Plugin_Handled;
-
-	return Plugin_Continue;
-}
-
-void RemoveSurvivorModelGlow(int client)
-{
-	int entity = g_iModelIndex[client];
-	g_iModelIndex[client] = 0;
-
-	if( IsValidEntRef(entity) )
-		AcceptEntityInput(entity, "kill");
-}
-
-bool IsValidEntRef(int entity)
-{
-	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE )
-		return true;
-	return false;
-}
-
-bool IsplayerIncap(int client)
-{
-	if(GetEntProp(client, Prop_Send, "m_isHangingFromLedge") || GetEntProp(client, Prop_Send, "m_isIncapacitated"))
-		return true;
-
-	return false;
-}
-
-int GetFrustration(int tank_index)
-{
-	return GetEntProp(tank_index, Prop_Send, "m_frustration");
-}
-
-int GetAheadSurvivor()
-{
-	float max_flow = 0.0;
-	float tmp_flow, origin[3];
-	int iAheadSurvivor = 0, iTemp;
-	Address pNavArea;
-	for (int client = 1; client <= MaxClients; client++) {
-		if(IsClientInGame(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
-		{
-			iTemp = client;
-			GetClientAbsOrigin(client, origin);
-			pNavArea = L4D2Direct_GetTerrorNavArea(origin);
-			if (pNavArea == Address_Null) continue;
-			
-			tmp_flow = L4D2Direct_GetTerrorNavAreaFlow(pNavArea);
-			if(tmp_flow >= max_flow)
-			{
-				max_flow = tmp_flow;
-				iAheadSurvivor = iTemp;
-			}
-		}
-	}
-
-	return (iAheadSurvivor == 0) ? iTemp : iAheadSurvivor;
-}
-
-int GetRandomAliveSurvivor()
-{
-	int iClientCount, iClients[MAXPLAYERS+1];
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR && IsPlayerAlive(i) && !IsClientInKickQueue(i))
-		{
-			iClients[iClientCount++] = i;
-		}
-	}
-	return (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
-}
-
-void CheckandPrecacheModel(const char[] model)
-{
-	if (!IsModelPrecached(model))
-	{
-		PrecacheModel(model, true);
-	}
-}
-
-static bool IsVisibleTo(int player1, int player2)
-{
-	// check FOV first
-	// if his origin is not within a 60 degree cone in front of us, no need to raytracing.
-	float pos1_eye[3], pos2_eye[3], eye_angle[3], vec_diff[3], vec_forward[3];
-	GetClientEyePosition(player1, pos1_eye);
-	GetClientEyeAngles(player1, eye_angle);
-	GetClientEyePosition(player2, pos2_eye);
-	MakeVectorFromPoints(pos1_eye, pos2_eye, vec_diff);
-	NormalizeVector(vec_diff, vec_diff);
-	GetAngleVectors(eye_angle, vec_forward, NULL_VECTOR, NULL_VECTOR);
-	if (GetVectorDotProduct(vec_forward, vec_diff) < 0.5) // cos 60
-	{
-		return false;
-	}
-
-	// in FOV
-	Handle hTrace;
-	bool ret = false;
-	float pos2_feet[3], pos2_chest[3];
-	GetClientAbsOrigin(player2, pos2_feet);
-	pos2_chest[0] = pos2_feet[0];
-	pos2_chest[1] = pos2_feet[1];
-	pos2_chest[2] = pos2_feet[2] + 45.0;
-
-	if (GetEntProp(player2, Prop_Send, "m_zombieClass") != ZOMBIECLASS_JOCKEY)
-	{
-		hTrace = TR_TraceRayFilterEx(pos1_eye, pos2_eye, MASK_VISIBLE, RayType_EndPoint, TraceFilter, player1);
-		if (!TR_DidHit(hTrace) || TR_GetEntityIndex(hTrace) == player2)
-		{
-			CloseHandle(hTrace);
-			return true;
-		}
-		CloseHandle(hTrace);
-	}
-
-	hTrace = TR_TraceRayFilterEx(pos1_eye, pos2_feet, MASK_VISIBLE, RayType_EndPoint, TraceFilter, player1);
-	if (!TR_DidHit(hTrace) || TR_GetEntityIndex(hTrace) == player2)
-	{
-		CloseHandle(hTrace);
-		return true;
-	}
-	CloseHandle(hTrace);
-
-	hTrace = TR_TraceRayFilterEx(pos1_eye, pos2_chest, MASK_VISIBLE, RayType_EndPoint, TraceFilter, player1);
-	if (!TR_DidHit(hTrace) || TR_GetEntityIndex(hTrace) == player2)
-	{
-		CloseHandle(hTrace);
-		return true;
-	}
-	CloseHandle(hTrace);
-
-	return ret;
-}
-
-static bool TraceFilter(int entity, int mask, int self)
-{
-	return entity != self;
-}
-
-// instead of Netprops "m_hasVisibleThreats", GetEntProp(i, Prop_Send, "m_hasVisibleThreats")
-bool CanBeSeenBySurvivors(int infected)
-{
-	for (int client = 1; client <= MaxClients; ++client)
-	{
-		if (IsAliveSurvivor(client) && IsVisibleTo(client, infected))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-bool IsAliveSurvivor(int client)
-{
-    return IsClientInGame(client)
-        && GetClientTeam(client) == TEAM_SURVIVOR
-        && IsPlayerAlive(client);
-}
-
-GameData hGameData;
-void GetGameData()
-{
-	hGameData = LoadGameConfigFile(GAMEDATA_FILE);
-	if( hGameData != null )
-	{
-		PrepSDKCall();
-	}
-	else
-	{
-		SetFailState("Unable to find l4dinfectedbots.txt gamedata file.");
-	}
 	delete hGameData;
-}
-
-void PrepSDKCall()
-{
-	if(g_bL4D2Version)
-	{
-		StartPrepSDKCall(SDKCall_Player);
-		PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, "FlashLightTurnOn");
-		hFlashLightTurnOn = EndPrepSDKCall();
-	}
-	else
-	{
-		StartPrepSDKCall(SDKCall_Player);
-		PrepSDKCall_SetFromConf(hGameData, SDKConf_Virtual, "FlashlightIsOn");
-		hFlashLightTurnOn = EndPrepSDKCall();
-	}
-	if (hFlashLightTurnOn == null)
-		SetFailState("FlashLightTurnOn Signature broken");
-
-	//find create bot signature
-	Address replaceWithBot = GameConfGetAddress(hGameData, "NextBotCreatePlayerBot.jumptable");
-	if (replaceWithBot != Address_Null && LoadFromAddress(replaceWithBot, NumberType_Int8) == 0x68) {
-		// We're on L4D2 and linux
-		PrepWindowsCreateBotCalls(replaceWithBot);
-	}
-	else
-	{
-		if (g_bL4D2Version)
-		{
-			PrepL4D2CreateBotCalls();
-		}
-		else
-		{
-			delete hCreateSpitter;
-			delete hCreateJockey;
-			delete hCreateCharger;
-		}
-
-		PrepL4D1CreateBotCalls();
-	}
-
-	g_iIntentionOffset = hGameData.GetOffset(FUNCTION_PATCH);
-	if (g_iIntentionOffset == -1)
-	{
-		SetFailState("Failed to load offset: %s", FUNCTION_PATCH);
-	}
-
-	int iOffset = hGameData.GetOffset(FUNCTION_PATCH2);
-	if (g_iIntentionOffset == -1)
-	{
-		SetFailState("Failed to load offset: %s", FUNCTION_PATCH2);
-	}
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetVirtual(iOffset);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	g_hSDKFirstContainedResponder = EndPrepSDKCall();
-	if (g_hSDKFirstContainedResponder == null)
-	{
-		SetFailState("Your \"%s\" offsets are outdated.", FUNCTION_PATCH2);
-	}
-
-	iOffset = hGameData.GetOffset(FUNCTION_PATCH3);
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetVirtual(iOffset);
-	PrepSDKCall_SetReturnInfo(SDKType_String, SDKPass_Plain);
-	g_hSDKGetName = EndPrepSDKCall();
-	if (g_hSDKGetName == null)
-	{
-		SetFailState("Your \"%s\" offsets are outdated.", FUNCTION_PATCH3);
-	}
-
-	delete hGameData;
-}
-
-void LoadStringFromAdddress(Address addr, char[] buffer, int maxlength) {
-	int i = 0;
-	while(i < maxlength) {
-		char val = LoadFromAddress(addr + view_as<Address>(i), NumberType_Int8);
-		if(val == 0) {
-			buffer[i] = 0;
-			break;
-		}
-		buffer[i] = val;
-		i++;
-	}
-	buffer[maxlength - 1] = 0;
-}
-
-Handle PrepCreateBotCallFromAddress(Handle hSiFuncTrie, const char[] siName) {
-	Address addr;
-	StartPrepSDKCall(SDKCall_Static);
-	if (!GetTrieValue(hSiFuncTrie, siName, addr) || !PrepSDKCall_SetAddress(addr))
-	{
-		SetFailState("Unable to find NextBotCreatePlayer<%s> address in memory.", siName);
-		return null;
-	}
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	return EndPrepSDKCall();
-}
-
-void PrepWindowsCreateBotCalls(Address jumpTableAddr) {
-	Handle hInfectedFuncs = CreateTrie();
-	// We have the address of the jump table, starting at the first PUSH instruction of the
-	// PUSH mem32 (5 bytes)
-	// CALL rel32 (5 bytes)
-	// JUMP rel8 (2 bytes)
-	// repeated pattern.
-
-	// Each push is pushing the address of a string onto the stack. Let's grab these strings to identify each case.
-	// "Hunter" / "Smoker" / etc.
-	for(int i = 0; i < 7; i++) {
-		// 12 bytes in PUSH32, CALL32, JMP8.
-		Address caseBase = jumpTableAddr + view_as<Address>(i * 12);
-		Address siStringAddr = view_as<Address>(LoadFromAddress(caseBase + view_as<Address>(1), NumberType_Int32));
-		static char siName[32];
-		LoadStringFromAdddress(siStringAddr, siName, sizeof(siName));
-
-		Address funcRefAddr = caseBase + view_as<Address>(6); // 2nd byte of call, 5+1 byte offset.
-		int funcRelOffset = LoadFromAddress(funcRefAddr, NumberType_Int32);
-		Address callOffsetBase = caseBase + view_as<Address>(10); // first byte of next instruction after the CALL instruction
-		Address nextBotCreatePlayerBotTAddr = callOffsetBase + view_as<Address>(funcRelOffset);
-		//PrintToServer("Found NextBotCreatePlayerBot<%s>() @ %08x", siName, nextBotCreatePlayerBotTAddr);
-		SetTrieValue(hInfectedFuncs, siName, nextBotCreatePlayerBotTAddr);
-	}
-
-	hCreateSmoker = PrepCreateBotCallFromAddress(hInfectedFuncs, "Smoker");
-	if (hCreateSmoker == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateSmoker); return; }
-
-	hCreateBoomer = PrepCreateBotCallFromAddress(hInfectedFuncs, "Boomer");
-	if (hCreateBoomer == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateBoomer); return; }
-
-	hCreateHunter = PrepCreateBotCallFromAddress(hInfectedFuncs, "Hunter");
-	if (hCreateHunter == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateHunter); return; }
-
-	hCreateTank = PrepCreateBotCallFromAddress(hInfectedFuncs, "Tank");
-	if (hCreateTank == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateTank); return; }
-
-	hCreateSpitter = PrepCreateBotCallFromAddress(hInfectedFuncs, "Spitter");
-	if (hCreateSpitter == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateSpitter); return; }
-
-	hCreateJockey = PrepCreateBotCallFromAddress(hInfectedFuncs, "Jockey");
-	if (hCreateJockey == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateJockey); return; }
-
-	hCreateCharger = PrepCreateBotCallFromAddress(hInfectedFuncs, "Charger");
-	if (hCreateCharger == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateCharger); return; }
-
-	delete hInfectedFuncs;
-}
-
-void PrepL4D2CreateBotCalls() {
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateSpitter))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSpitter); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateSpitter = EndPrepSDKCall();
-	if (hCreateSpitter == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSpitter); return; }
-
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateJockey))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateJockey); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateJockey = EndPrepSDKCall();
-	if (hCreateJockey == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateJockey); return; }
-
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateCharger))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateCharger); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateCharger = EndPrepSDKCall();
-	if (hCreateCharger == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateCharger); return; }
-}
-
-void PrepL4D1CreateBotCalls() 
-{
-	bool bLinuxOS = hGameData.GetOffset("OS") != 0;
-	if(bLinuxOS)
-	{
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateSmoker))
-		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker); return; }
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateSmoker = EndPrepSDKCall();
-		if (hCreateSmoker == null)
-		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker); return; }
-
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateBoomer))
-		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer); return; }
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateBoomer = EndPrepSDKCall();
-		if (hCreateBoomer == null)
-		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer); return; }
-
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateHunter))
-		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter); return; }
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateHunter = EndPrepSDKCall();
-		if (hCreateHunter == null)
-		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter); return; }
-
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateTank))
-		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank); return; }
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateTank = EndPrepSDKCall();
-		if (hCreateTank == null)
-		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank); return; }
-	}
-	else
-	{
-		Address addr;
-
-		addr = RelativeJumpDestination(hGameData.GetAddress(NAME_CreateSmoker_L4D1));
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetAddress(addr))
-		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker_L4D1); return; }
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateSmoker = EndPrepSDKCall();
-		if(hCreateSmoker == null)
-		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker_L4D1); return; }
-
-		addr = RelativeJumpDestination(hGameData.GetAddress(NAME_CreateBoomer_L4D1));
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetAddress(addr))
-		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer_L4D1); return; }
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateBoomer = EndPrepSDKCall();
-		if(hCreateSmoker == null)
-		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer_L4D1); return; }
-
-		addr = RelativeJumpDestination(hGameData.GetAddress(NAME_CreateHunter_L4D1));
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetAddress(addr))
-		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter_L4D1); return; }
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateHunter = EndPrepSDKCall();
-		if(hCreateHunter == null)
-		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter_L4D1); return; }
-
-		addr = RelativeJumpDestination(hGameData.GetAddress(NAME_CreateTank_L4D1));
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetAddress(addr))
-		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank_L4D1); return; }
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateTank = EndPrepSDKCall();
-		if(hCreateTank == null)
-		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank_L4D1); return; }
-	}
-}
-
-Address RelativeJumpDestination(Address p)
-{
-	int offset = LoadFromAddress(p, NumberType_Int32);
-	return p + view_as<Address>(offset + 4);
-}
-
-bool IsTooClose(int client, float distance)
-{
-	float fInfLocation[3], fSurvLocation[3], fVector[3];
-	GetClientAbsOrigin(client, fInfLocation);
-
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if(IsClientInGame(i) && GetClientTeam(i)==TEAM_SURVIVOR && IsPlayerAlive(i))
-		{
-			GetClientAbsOrigin(i, fSurvLocation);
-			MakeVectorFromPoints(fInfLocation, fSurvLocation, fVector);
-			if (GetVectorLength(fVector, true) < Pow(distance, 2.0)) return true;
-		}
-	}
-	return false;
-}
-
-bool HasAccess(int client, char[] sAcclvl)
-{
-	// no permissions set
-	if (strlen(sAcclvl) == 0)
-		return true;
-
-	else if (StrEqual(sAcclvl, "-1"))
-		return false;
-
-	// check permissions
-	int userFlags = GetUserFlagBits(client);
-	if ( (userFlags & ReadFlagString(sAcclvl)) || (userFlags & ADMFLAG_ROOT))
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void GameStart()
-{
-	// We don't care who left, just that at least one did
-	if(g_iCurrentMode == 3)
-	{
-		if(g_bL4D2Version)
-		{
-			SetConVarInt(FindConVar("survival_max_smokers"), 0);
-			SetConVarInt(FindConVar("survival_max_boomers"), 0);
-			SetConVarInt(FindConVar("survival_max_hunters"), 0);
-			SetConVarInt(FindConVar("survival_max_jockeys"), 0);
-			SetConVarInt(FindConVar("survival_max_spitters"), 0);
-			SetConVarInt(FindConVar("survival_max_chargers"), 0);
-			SetConVarInt(FindConVar("survival_max_specials"), 0);
-		}
-		else
-		{
-			SetConVarInt(FindConVar("holdout_max_smokers"), 0);
-			SetConVarInt(FindConVar("holdout_max_boomers"), 0);
-			SetConVarInt(FindConVar("holdout_max_hunters"), 0);
-			SetConVarInt(FindConVar("holdout_max_specials"), 0);
-		}
-	}
-
-	SetSpawnDis();
-
-	// We check if we need to spawn bots
-	CheckIfBotsNeeded(2);
-	#if DEBUG
-	LogMessage("Checking to see if we need bots");
-	#endif
-	if(g_iCurrentMode != 3)
-	{
-		delete hSpawnWitchTimer;
-		hSpawnWitchTimer = CreateTimer(GetRandomFloat(g_ePluginSettings.m_fWitchSpawnTimeMin, g_ePluginSettings.m_fWitchSpawnTimeMax), SpawnWitchAuto);
-	}
-}
-
-// The type of idle mode to check for.
-// Note: It is recommended to set this to "2" on non-finale maps and "0" on finale maps.
-// Note: There is a rare bug where a Tank spawns with no behavior even though they look "idle" to survivors. Set this setting to "0" or "2" to detect this bug.
-// Note: Do not change this setting if you are unsure of how it works.
-// Note: This setting can be used for standard Tanks.
-// --
-// 0: Both
-// 1: Only check for idle Tanks.
-// 2: Only check for Tanks with no behavior (rare bug).
-bool bIsTankIdle(int tank, int type = 0)
-{
-	Address adTank = GetEntityAddress(tank);
-	if (adTank == Address_Null)
-	{
-		return false;
-	}
-
-	Address adIntention = LoadFromAddress((adTank + view_as<Address>(g_iIntentionOffset)), NumberType_Int32);
-	if (adIntention == Address_Null)
-	{
-		return false;
-	}
-
-	Address adBehavior = view_as<Address>(SDKCall(g_hSDKFirstContainedResponder, adIntention));
-	if (adBehavior == Address_Null)
-	{
-		return false;
-	}
-
-	Address adAction = view_as<Address>(SDKCall(g_hSDKFirstContainedResponder, adBehavior));
-	if (adAction == Address_Null)
-	{
-		return false;
-	}
-
-	Address adChildAction = Address_Null;
-	while ((adChildAction = view_as<Address>(SDKCall(g_hSDKFirstContainedResponder, adAction))) != Address_Null)
-	{
-		adAction = adChildAction;
-	}
-
-	char sAction[64];
-	SDKCall(g_hSDKGetName, adAction, sAction, sizeof sAction);
-	return (type != 2 && StrEqual(sAction, "TankIdle")) || (type != 1 && (StrEqual(sAction, "TankBehavior") || adAction == adBehavior));
 }
 
 void CleanUpStateAndMusic(int client)
