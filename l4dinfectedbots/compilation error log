@@ -1,0 +1,120 @@
+//SourceMod Batch Compiler
+// by the SourceMod Dev Team
+
+
+//// l4dinfectedbots.sp
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(252) : error 010: invalid function or declaration
+//    252 | *      - Kill Tank if tank player frustrated in coop/survival
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(252) : error 173: 'in' is a newly reserved keyword that may be used in the future; use a different name as an identifier
+//    252 | *      - Kill Tank if tank player frustrated in coop/survival
+// ----------------------------------------------------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(253) : error 173: 'in' is a newly reserved keyword that may be used in the future; use a different name as an identifier
+//    253 | *      - Player will be killed if enter ghost state in coop/survival
+// -----------------------------------------------------------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(280) : error 010: invalid function or declaration
+//    280 | *      - Remove TurnFlashlightOn since TurnFlashlightOn signature is broken and cause server crash
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(281) : error 173: 'in' is a newly reserved keyword that may be used in the future; use a different name as an identifier
+//    281 | *      - Add TurnNightVisionOn for infected player in coop/survival
+// ----------------------------------------------------------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(283) : error 010: invalid function or declaration
+//    283 | *
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(300) : error 010: invalid function or declaration
+//    300 | *
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(312) : error 173: 'in' is a newly reserved keyword that may be used in the future; use a different name as an identifier
+//    312 | *      - l4d_infectedbots_adjust_spawn_times cvar added, if set to 1, it adjusts the spawn timers depending on the gamemode (depends on infected players in versus, survivors in coop)
+// -----------------------------------------------------------------------------------------------------------------------------------------------------------------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(314) : error 010: invalid function or declaration
+//    314 | *      - Director class limits for survival that are changed using an server config  at startup will no longer reset to their defaults
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(315) : error 010: invalid function or declaration
+//    315 | *      - l4d_infectedbots_admin_coop_versus and l4d_infectedbots_coop_versus_announce is now defaulted to 0 (off)
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(320) : error 010: invalid function or declaration
+//    320 | *      - Fixed bug created by Valve that would ghost the tank if there was an infected player in coop/survival
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(320) : error 173: 'in' is a newly reserved keyword that may be used in the future; use a different name as an identifier
+//    320 | *      - Fixed bug created by Valve that would ghost the tank if there was an infected player in coop/survival
+// ------------------------------------------------------------------------------------------------------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(328) : error 010: invalid function or declaration
+//    328 | *      - Plugin class limits no longer affect director spawn limits due to the director not obeying the limits (ie: l4d_infectedbots_boomer_limit no longer affects z_boomer_limit)
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(338) : error 010: invalid function or declaration
+//    338 | *
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(341) : error 010: invalid function or declaration
+//    341 | *      - Changed how the plugin detected dead/alive players
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(356) : error 010: invalid function or declaration
+//    356 | *      - Plugin is now compatible with the new mutation gamemode and any further mutations
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(357) : error 010: invalid function or declaration
+//    357 | *
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(371) : error 173: 'as' is a newly reserved keyword that may be used in the future; use a different name as an identifier
+//    371 | *      - Fixed bug where Valve's bots would still spawn on certain maps
+// ------------------------------------------------------------------------------------------------------------------------------------------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(376) : error 010: invalid function or declaration
+//    376 | *      - Altered descriptions of the class limit cvars
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(378) : error 010: invalid function or declaration
+//    378 | * Version 1.9.0
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(385) : error 173: 'with' is a newly reserved keyword that may be used in the future; use a different name as an identifier
+//    385 | *      - Removed FCVAR_NOTIFY from all cvars except the version cvar
+// ---------------------------------------------------------------------------------------------------------------------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(386) : error 010: invalid function or declaration
+//    386 | *      - If l4d_infectedbots_infected_team_joinable is 0, plugin will not set sb_all_bot_team to 1
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(387) : error 010: invalid function or declaration
+//    387 | *      - Infected HUD can now display multiple tanks on fire along with the tank's health
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(389) : error 010: invalid function or declaration
+//    389 | *      - Fixed bug where some players would not ghost in coop when they first spawn in a map
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(397) : error 053: number literal contains alphanumeric character
+//    397 | *      - Reverted back to original way of joining survivors (jointeam instead of sb_takecontrol)
+// --------------------------------------------------------------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(400) : error 010: invalid function or declaration
+//    400 | *
+// ---------^
+//
+// C:\Program Files (x86)\Steam\steamapps\common\Left 4 Dead 2 Dedicated Server\left4dead2\addons\sourcemod\scripting\l4dinfectedbots.sp(401) : error 029: invalid expression, assumed zero
+//    401 | * Version 1.8.8
+// ---------^
+//
+// 27 Errors.
+//
+// Compilation Time: 1.08 sec
+// ----------------------------------------
+
+Press enter to exit ...
