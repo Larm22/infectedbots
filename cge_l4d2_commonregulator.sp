@@ -160,7 +160,14 @@ public Action:Timer_DifficultyCheck(Handle:timer)
 		//PrintToServer("Alive survivors %i", alivesurvivors);
 		if (alivesurvivors)
 		{
-			survivors = alivesurvivors;
+			if(alivesurvivors <= 4)
+			{
+				survivors = 4;
+			}
+			else
+			{
+				survivors = alivesurvivors;
+			}
 			SetDifficulty();
 		}
 		else
