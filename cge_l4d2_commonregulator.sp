@@ -21,6 +21,9 @@ new Handle:commonregulator_commons_background = INVALID_HANDLE;
 new Handle:commonregulator_megamob = INVALID_HANDLE;
 new Handle:commonregulator_mobmin = INVALID_HANDLE;
 new Handle:commonregulator_mobmax = INVALID_HANDLE;
+new Handle:commonregulator_hearing = INVALID_HANDLE;
+
+
 
 public OnPluginStart() 
 {
@@ -30,7 +33,9 @@ public OnPluginStart()
 	commonregulator_megamob = CreateConVar("commonregulator_megamob", "50", "Mega-mob size for four players", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_NOTIFY)
 	commonregulator_mobmin = CreateConVar("commonregulator_mobmin", "10", "Minimum mob spawn size for four players", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_NOTIFY);
 	commonregulator_mobmax = CreateConVar("commonregulator_mobmax", "30", "Maximum mob spawn size for four players", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_NOTIFY);
-	
+	commonregulator_hearing = CreateConVar("commonregulator_hearing", "200", "Gunfire hearing range for four players", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_NOTIFY);
+
+
 	AutoExecConfig(true, "cge_l4d2_commonregulator");
 
 	HookEvent("player_first_spawn", Event_PlayerFirstSpawn);
@@ -160,7 +165,14 @@ public Action:Timer_DifficultyCheck(Handle:timer)
 		//PrintToServer("Alive survivors %i", alivesurvivors);
 		if (alivesurvivors)
 		{
-			survivors = alivesurvivors;
+			if(alivesurvivors <= 4)
+			{
+				survivors = 4;
+			}
+			else
+			{
+				survivors = alivesurvivors;
+			}
 			SetDifficulty();
 		}
 		else
@@ -174,17 +186,20 @@ SetDifficulty()
 {
 	//PrintToServer("Setting commons for %i players.", survivors);
 	
-	new commonlimit = survivors * RoundToCeil(float((GetConVarInt(commonregulator_commons)) / 4));
+	new commonlimit = (survivors * RoundToCeil(float((GetConVarInt(commonregulator_commons)) + 90) / 7));
 	new backgroundlimit = survivors * RoundToCeil(float((GetConVarInt(commonregulator_commons_background)) / 4));
-	new megamobsize = survivors * RoundToCeil(float((GetConVarInt(commonregulator_megamob)) / 4));
-	new mobminnotify = survivors * RoundToCeil(float((GetConVarInt(commonregulator_mobmin)) / 4));
-	new mobminsize = survivors * RoundToCeil(float((GetConVarInt(commonregulator_mobmin)) / 4));
-	new mobmaxsize = survivors * RoundToCeil(float((GetConVarInt(commonregulator_mobmax)) / 4));
-	
+	new megamobsize = (survivors * RoundToCeil(float((GetConVarInt(commonregulator_megamob)) + 1050) / 25));
+	new mobminnotify = (survivors * RoundToCeil(float((GetConVarInt(commonregulator_mobmin)) + 20) / 6));
+	new mobminsize = (survivors * RoundToCeil(float((GetConVarInt(commonregulator_mobmin)) + 20) / 6));
+	new mobmaxsize = (survivors * RoundToCeil(float((GetConVarInt(commonregulator_mobmax)) + 90) / 7));
+	new hearing = (survivors * RoundToCeil(float((GetConVarInt(commonregulator_hearing)) + 600) / 7));
+
 	SetConVarInt(FindConVar("z_common_limit"), commonlimit);
 	SetConVarInt(FindConVar("z_background_limit"), backgroundlimit);
 	SetConVarInt(FindConVar("z_mega_mob_size"), megamobsize);
 	SetConVarInt(FindConVar("z_mob_min_notify_count"), mobminnotify);
 	SetConVarInt(FindConVar("z_mob_spawn_min_size"), mobminsize);
 	SetConVarInt(FindConVar("z_mob_spawn_max_size"), mobmaxsize);
+	SetConVarInt(FindConVar("z_hear_gunfire_range"), hearing);
+
 }
